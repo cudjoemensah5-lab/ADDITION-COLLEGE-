@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Result Verification</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b3c;
+    --green-light: #2a9d5c;
+    --gold: #f4b942;
+    --dark: #0d1f13;
+    --surface: #f5f9f6;
+    --text: #1a2e1f;
+    --muted: #6b8f74;
+    --border: #d0e8d8;
+    --red: #c0392b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  header {
+    background: var(--dark);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  header .logo {
+    width: 44px; height: 44px;
+    background: var(--gold);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: var(--dark);
+    font-size: 18px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  header p { font-size: 12px; color: #9bbfa8; margin-top: 2px; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green) 0%, var(--dark) 100%);
+    color: white;
+    text-align: center;
+    padding: 52px 24px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .hero p {
+    font-size: 14px;
+    opacity: 0.8;
+    max-width: 320px;
+    margin: 0 auto;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin: 24px 16px;
+    box-shadow: 0 4px 20px rgba(26,107,60,0.08);
+    border: 1px solid var(--border);
+  }
+
+  .card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--green-light); background: white; }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:active { transform: scale(0.98); }
+  .btn:hover { background: var(--green-light); }
+
+  .result-card {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(26,107,60,0.12);
+    border: 1px solid var(--border);
+    animation: slideUp 0.4s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    background: var(--green);
+    color: white;
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .result-header .verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .result-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .result-header p { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+
+  .result-body { padding: 24px; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--muted); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .info-value { font-weight: 600; color: var(--text); }
+
+  .score-display {
+    text-align: center;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    margin: 16px 0;
+  }
+
+  .score-display .score-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .score-display .score-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .grade-pill {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-top: 8px;
+  }
+
+  .grade-A { background: #d4edda; color: #1a6b3c; }
+  .grade-B { background: #cce5ff; color: #004085; }
+  .grade-C { background: #fff3cd; color: #856404; }
+  .grade-D { background: #f8d7da; color: #721c24; }
+  .grade-F { background: #f8d7da; color: #721c24; }
+
+  .not-found {
+    display: none;
+    background: #fff5f5;
+    border: 1px solid #fcc;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin: 0 16px 24px;
+    animation: slideUp 0.3s ease;
+  }
+
+  .not-found .icon { font-size: 36px; margin-bottom: 10px; }
+  .not-found h4 { font-family: 'Syne', sans-serif; color: var(--red); margin-bottom: 6px; }
+  .not-found p { font-size: 13px; color: #888; line-height: 1.5; }
+
+  .security-note {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 12px;
+    color: #92400e;
+    margin-top: 16px;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .qr-hint {
+    text-align: center;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AC</div>
+  <div>
+    <h1>Addition College</h1>
+    <p>Official Result Verification Portal</p>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="badge">🔒 Tamper-Proof</div>
+  <h2>Verify Exam Result</h2>
+  <p>Enter your Index Number and Verification Code to confirm your authentic result.</p>
+</div>
+
+<div class="card">
+  <h3>🔍 Check Your Result</h3>
+
+  <div class="input-group">
+    <label>Index Number</label>
+    <input type="text" id="indexInput" placeholder="e.g. 255677" maxlength="10">
+  </div>
+
+  <div class="input-group">
+    <label>Verification Code</label>
+    <input type="text" id="codeInput" placeholder="e.g. AC-2024-XXXX" maxlength="20" style="text-transform:uppercase;">
+  </div>
+
+  <button class="btn" onclick="verifyResult()">🔎 Verify Result</button>
+
+  <div class="security-note">
+    ⚠️ <span>Results shown here are <strong>official and uneditable</strong>. Only this portal can confirm a student's authentic score.</span>
+  </div>
+
+  <div class="qr-hint">📷 You can also scan a QR code from an official result slip</div>
+</div>
+
+<!-- Result Display -->
+<div class="result-card" id="resultCard">
+  <div class="result-header">
+    <div class="verified-badge">✅ VERIFIED RESULT</div>
+    <h3 id="res-name">—</h3>
+    <p id="res-programme">—</p>
+  </div>
+  <div class="result-body">
+    <div class="score-display">
+      <div class="score-num" id="res-score">—</div>
+      <div class="score-label" id="res-total">out of —</div>
+      <div><span class="grade-pill" id="res-grade">—</span></div>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Index Number</span>
+      <span class="info-value" id="res-index">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Subject</span>
+      <span class="info-value" id="res-subject">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Exam Date</span>
+      <span class="info-value" id="res-date">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Time Used</span>
+      <span class="info-value" id="res-time">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Verification Code</span>
+      <span class="info-value" id="res-code">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Verified At</span>
+      <span class="info-value" id="res-verified-at">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- Not Found -->
+<div class="not-found" id="notFound">
+  <div class="icon">❌</div>
+  <h4>Result Not Found</h4>
+  <p>No result matches this Index Number and Verification Code.<br>This may indicate an edited or fake result slip.</p>
+</div>
+
+<div class="footer">
+  🏫 Addition College &nbsp;·&nbsp; Powered by HangOut Publications<br>
+  <span style="color:#c0392b; font-weight:600;">Report suspicious results to your teacher immediately.</span>
+</div>
+
+<script>
+// ===== RESULT DATABASE =====
+// Admin adds results here OR they are loaded from results.json
+// Format: "INDEXNUMBER_VERIFICATIONCODE": { ...result data }
+let RESULTS = {};
+
+// Try loading from results.json (when hosted on GitHub Pages)
+async function loadResults() {
+  try {
+    const res = await fetch('results.json');
+    if (res.ok) {
+      RESULTS = await res.json();
+    }
+  } catch(e) {
+    // Fallback to demo data if no results.json
+    RESULTS = {
+      "255677_AC-2024-CRK1": {
+        name: "Kytrff",
+        index: "255677",
+        programme: "General Arts (Government)",
+        subject: "Christian Religious Knowledge",
+        score: 32,
+        total: 50,
+        grade: "C",
+        date: "2024-11-15",
+        timeUsed: "00:38:45",
+        code: "AC-2024-CRK1"
+      }
+    };
+  }
+}
+
+loadResults();
+
+function verifyResult() {
+  const index = document.getElementById('indexInput').value.trim();
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('notFound').style.display = 'none';
+
+  if (!index || !code) {
+    alert('Please enter both your Index Number and Verification Code.');
+    return;
+  }
+
+  const key = `${index}_${code}`;
+  const result = RESULTS[key];
+
+  if (result) {
+    showResult(result);
+  } else {
+    document.getElementById('notFound').style.display = 'block';
+    document.getElementById('notFound').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function showResult(r) {
+  document.getElementById('res-name').textContent = r.name;
+  document.getElementById('res-programme').textContent = r.programme;
+  document.getElementById('res-score').textContent = `${r.score}/${r.total}`;
+  document.getElementById('res-total').textContent = `${Math.round(r.score/r.total*100)}% — Official Score`;
+  document.getElementById('res-index').textContent = r.index;
+  document.getElementById('res-subject').textContent = r.subject;
+  document.getElementById('res-date').textContent = r.date;
+  document.getElementById('res-time').textContent = r.timeUsed;
+  document.getElementById('res-code').textContent = r.code;
+  document.getElementById('res-verified-at').textContent = new Date().toLocaleString();
+
+  const gradeEl = document.getElementById('res-grade');
+  gradeEl.textContent = `Grade: ${r.grade}`;
+  gradeEl.className = `grade-pill grade-${r.grade}`;
+
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Allow Enter key to trigger verify
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') verifyResult();
+});
+</script>
+</body>
+</html>
