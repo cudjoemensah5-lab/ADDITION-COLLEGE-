@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Result Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b3c;
+    --green-light: #2a9d5c;
+    --gold: #f4b942;
+    --dark: #0d1f13;
+    --surface: #f5f9f6;
+    --text: #1a2e1f;
+    --muted: #6b8f74;
+    --border: #d0e8d8;
+    --red: #c0392b;
+    --blue: #1a5276;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  header {
+    background: var(--dark);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+
+  .logo {
+    width: 40px; height: 40px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: var(--dark);
+    font-size: 16px;
+  }
+
+  header h1 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+  header p { font-size: 11px; color: #9bbfa8; }
+
+  .admin-badge {
+    background: var(--red);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* Login Screen */
+  #loginScreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    padding: 24px;
+  }
+
+  .login-box {
+    background: white;
+    border-radius: 16px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .login-box .icon { font-size: 48px; margin-bottom: 16px; }
+  .login-box h2 { font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 6px; }
+  .login-box p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  /* Main App */
+  #mainApp { display: none; }
+
+  .tab-bar {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 14px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  .tab-content { display: none; padding: 20px 16px; }
+  .tab-content.active { display: block; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--green);
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(26,107,60,0.05);
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus { border-color: var(--green-light); background: white; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .btn {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary { background: var(--green); color: white; width: 100%; }
+  .btn-primary:hover { background: var(--green-light); }
+  .btn-danger { background: var(--red); color: white; padding: 8px 14px; font-size: 12px; }
+  .btn-export { background: var(--blue); color: white; width: 100%; margin-top: 8px; }
+  .btn-import { background: var(--gold); color: var(--dark); width: 100%; margin-bottom: 8px; }
+
+  .result-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .result-item .info .name {
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .result-item .info .meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .result-item .score {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .result-item .score .num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--green);
+  }
+
+  .result-item .score .grade {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .code-tag {
+    display: inline-block;
+    background: #e8f5ee;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    margin-top: 4px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.3s;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green);
+  }
+
+  .stat-box .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .search-bar {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .search-bar input {
+    padding-left: 36px;
+    margin-bottom: 0;
+  }
+
+  .search-bar::before {
+    content: '🔍';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+
+  .csv-instructions {
+    background: #eff8f3;
+    border: 1px solid #a8d5b8;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 12px;
+    color: var(--green);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .csv-instructions code {
+    display: block;
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 11px;
+    margin-top: 6px;
+    color: var(--dark);
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">AC</div>
+    <div>
+      <h1>Admin Panel</h1>
+      <p>Result Manager</p>
+    </div>
+  </div>
+  <div class="admin-badge">🔐 ADMIN</div>
+</header>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="icon">🔐</div>
+    <h2>Admin Login</h2>
+    <p>Enter your password to access the result manager</p>
+    <label>Password</label>
+    <input type="password" id="passwordInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn btn-primary" onclick="login()">Login →</button>
+    <p style="margin-top:14px; font-size:11px; color:#aaa;">Default password: <strong>admin123</strong><br>Change this in settings!</p>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp">
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('add')">➕ Add Result</div>
+    <div class="tab" onclick="switchTab('list')">📋 All Results</div>
+    <div class="tab" onclick="switchTab('import')">📥 Import CSV</div>
+    <div class="tab" onclick="switchTab('export')">📤 Export</div>
+    <div class="tab" onclick="switchTab('settings')">⚙️ Settings</div>
+  </div>
+
+  <!-- ADD RESULT TAB -->
+  <div class="tab-content active" id="tab-add">
+    <p class="section-title">➕ Add Student Result</p>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Student Name</label>
+          <input type="text" id="f-name" placeholder="Full name">
+        </div>
+        <div>
+          <label>Index Number</label>
+          <input type="text" id="f-index" placeholder="e.g. 255677">
+        </div>
+      </div>
+
+      <label>Programme</label>
+      <input type="text" id="f-programme" placeholder="e.g. General Arts (Government)">
+
+      <label>Subject</label>
+      <input type="text" id="f-subject" placeholder="e.g. Christian Religious Knowledge">
+
+      <div class="row">
+        <div>
+          <label>Score</label>
+          <input type="number" id="f-score" placeholder="e.g. 32" min="0">
+        </div>
+        <div>
+          <label>Total Marks</label>
+          <input type="number" id="f-total" placeholder="e.g. 50" min="1">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Grade</label>
+          <select id="f-grade">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C" selected>C</option>
+            <option value="D">D</option>
+            <option value="F">F</option>
+          </select>
+        </div>
+        <div>
+          <label>Exam Date</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+
+      <label>Time Used (HH:MM:SS)</label>
+      <input type="text" id="f-time" placeholder="e.g. 00:38:45">
+
+      <label>Verification Code (auto-generated)</label>
+      <input type="text" id="f-code" placeholder="Click Generate →" style="font-family:monospace; text-transform:uppercase;">
+
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button class="btn" style="flex:1; background:#e8f5ee; color:var(--green); border:1px solid var(--border);" onclick="generateCode()">🎲 Generate Code</button>
+        <button class="btn" style="flex:1; background:#e8f5ee; color:var(--green); border:1px solid var(--border);" onclick="autoGrade()">🎯 Auto Grade</button>
+      </div>
+
+      <button class="btn btn-primary" onclick="addResult()">✅ Save Result</button>
+    </div>
+  </div>
+
+  <!-- LIST TAB -->
+  <div class="tab-content" id="tab-list">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="num" id="stat-total">0</div>
+        <div class="lbl">Total Results</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-avg">—</div>
+        <div class="lbl">Avg Score %</div>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name or index..." oninput="renderList()">
+    </div>
+
+    <div id="resultsList"></div>
+  </div>
+
+  <!-- IMPORT CSV TAB -->
+  <div class="tab-content" id="tab-import">
+    <p class="section-title">📥 Import from CSV / Google Sheets</p>
+
+    <div class="csv-instructions">
+      <strong>📋 CSV Format (Google Sheets → Download as CSV):</strong>
+      <code>name,index,programme,subject,score,total,grade,date,timeUsed</code>
+      <br>Each row = one student. Verification codes are auto-generated.
+    </div>
+
+    <div class="card">
+      <label>Select CSV File</label>
+      <input type="file" id="csvFile" accept=".csv" onchange="previewCSV()">
+      <div id="csvPreview" style="font-size:12px; color:var(--muted); margin-bottom:14px;"></div>
+      <button class="btn btn-primary" onclick="importCSV()">📥 Import Results</button>
+    </div>
+  </div>
+
+  <!-- EXPORT TAB -->
+  <div class="tab-content" id="tab-export">
+    <p class="section-title">📤 Export & Share</p>
+
+    <div class="card">
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Export the results database to host on GitHub Pages. Students use index + verification code to check results.</p>
+      <button class="btn btn-export" onclick="exportJSON()">💾 Download results.json</button>
+      <button class="btn btn-export" style="margin-top:8px; background:#27ae60;" onclick="exportCSV()">📊 Download as CSV</button>
+    </div>
+
+    <div class="card">
+      <p class="section-title" style="font-size:14px;">🚀 GitHub Pages Setup</p>
+      <ol style="font-size:13px; line-height:2; color:var(--text); padding-left:18px;">
+        <li>Download <strong>results.json</strong> above</li>
+        <li>Go to your GitHub repo</li>
+        <li>Upload <strong>results.json</strong> to the root folder</li>
+        <li>Students visit your GitHub Pages site</li>
+        <li>They enter Index + Verification Code</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <p class="section-title" style="font-size:14px;">📱 Share Verification Link</p>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Send this message to students after uploading results:</p>
+      <div style="background:#e8f5ee; border-radius:8px; padding:14px; font-size:13px; line-height:1.6; border:1px dashed var(--green);" id="shareMessage">
+        ✅ *Your exam result is ready!*<br>
+        🔗 Visit: [YOUR GITHUB PAGES URL]/index.html<br>
+        Enter your Index Number + the Verification Code I will send you privately.<br>
+        ⚠️ Only results shown on this portal are official.
+      </div>
+      <button class="btn" style="background:#25d366; color:white; width:100%; margin-top:10px;" onclick="copyShareMessage()">📋 Copy Message</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="tab-settings">
+    <p class="section-title">⚙️ Settings</p>
+
+    <div class="card">
+      <label>School Name</label>
+      <input type="text" id="s-school" value="Addition College">
+
+      <label>Change Admin Password</label>
+      <input type="password" id="s-password" placeholder="New password">
+
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+
+    <div class="card">
+      <p style="font-size:13px; color:var(--red); font-weight:600; margin-bottom:12px;">⚠️ Danger Zone</p>
+      <button class="btn btn-danger" style="width:100%;" onclick="clearAll()">🗑️ Clear All Results</button>
+    </div>
+
+    <div class="card">
+      <button class="btn" style="width:100%; background:#555; color:white;" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let RESULTS = {};
+let settings = { school: 'Addition College', password: 'admin123' };
+
+// Load from localStorage
+function load() {
+  try {
+    const r = localStorage.getItem('ac_results');
+    if (r) RESULTS = JSON.parse(r);
+    const s = localStorage.getItem('ac_settings');
+    if (s) settings = JSON.parse(s);
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem('ac_results', JSON.stringify(RESULTS));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// LOGIN
+function login() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === settings.password) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    renderList();
+    updateStats();
+    document.getElementById('f-date').valueAsDate = new Date();
+  } else {
+    showToast('❌ Wrong password!');
+  }
+}
+
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('passwordInput').value = '';
+}
+
+// TABS
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const tabs = ['add','list','import','export','settings'];
+    t.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (name === 'list') { renderList(); updateStats(); }
+}
+
+// GENERATE CODE
+function generateCode() {
+  const idx = document.getElementById('f-index').value.trim() || 'XX';
+  const subj = document.getElementById('f-subject').value.trim().split(' ')[0].substring(0,3).toUpperCase() || 'EX';
+  const rand = Math.random().toString(36).substring(2,6).toUpperCase();
+  document.getElementById('f-code').value = `AC-${subj}-${idx}-${rand}`;
+}
+
+// AUTO GRADE
+function autoGrade() {
+  const score = parseFloat(document.getElementById('f-score').value);
+  const total = parseFloat(document.getElementById('f-total').value) || 100;
+  const pct = (score / total) * 100;
+  let grade = 'F';
+  if (pct >= 80) grade = 'A';
+  else if (pct >= 65) grade = 'B';
+  else if (pct >= 50) grade = 'C';
+  else if (pct >= 40) grade = 'D';
+  document.getElementById('f-grade').value = grade;
+  showToast(`Grade set to ${grade} (${Math.round(pct)}%)`);
+}
+
+// ADD RESULT
+function addResult() {
+  const name = document.getElementById('f-name').value.trim();
+  const index = document.getElementById('f-index').value.trim();
+  const code = document.getElementById('f-code').value.trim().toUpperCase();
+
+  if (!name || !index || !code) {
+    showToast('❌ Name, Index, and Code are required!');
+    return;
+  }
+
+  const key = `${index}_${code}`;
+  RESULTS[key] = {
+    name,
+    index,
+    programme: document.getElementById('f-programme').value.trim(),
+    subject: document.getElementById('f-subject').value.trim(),
+    score: parseFloat(document.getElementById('f-score').value) || 0,
+    total: parseFloat(document.getElementById('f-total').value) || 50,
+    grade: document.getElementById('f-grade').value,
+    date: document.getElementById('f-date').value,
+    timeUsed: document.getElementById('f-time').value.trim() || '—',
+    code
+  };
+
+  save();
+  showToast(`✅ Result saved for ${name}`);
+  clearForm();
+  updateStats();
+}
+
+function clearForm() {
+  ['f-name','f-index','f-programme','f-subject','f-score','f-total','f-time','f-code'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-date').valueAsDate = new Date();
+}
+
+// RENDER LIST
+function renderList() {
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const container = document.getElementById('resultsList');
+  const items = Object.values(RESULTS).filter(r =>
+    r.name.toLowerCase().includes(query) || r.index.includes(query)
+  );
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No results found</p></div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(r => {
+    const key = `${r.index}_${r.code}`;
+    return `
+      <div class="result-item">
+        <div class="info">
+          <div class="name">${r.name}</div>
+          <div class="meta">Index: ${r.index} · ${r.subject || '—'}</div>
+          <div class="code-tag">${r.code}</div>
+        </div>
+        <div class="score">
+          <div class="num">${r.score}/${r.total}</div>
+          <div class="grade">Grade ${r.grade}</div>
+          <button class="btn btn-danger" style="margin-top:6px;" onclick="deleteResult('${key}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteResult(key) {
+  if (confirm('Delete this result?')) {
+    delete RESULTS[key];
+    save();
+    renderList();
+    updateStats();
+    showToast('🗑️ Result deleted');
+  }
+}
+
+function updateStats() {
+  const all = Object.values(RESULTS);
+  document.getElementById('stat-total').textContent = all.length;
+  if (all.length > 0) {
+    const avg = all.reduce((s, r) => s + (r.score / r.total * 100), 0) / all.length;
+    document.getElementById('stat-avg').textContent = Math.round(avg) + '%';
+  } else {
+    document.getElementById('stat-avg').textContent = '—';
+  }
+}
+
+// IMPORT CSV
+let csvData = [];
+
+function previewCSV() {
+  const file = document.getElementById('csvFile').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.trim().split('\n');
+    document.getElementById('csvPreview').textContent = `Found ${lines.length - 1} rows. Ready to import.`;
+    csvData = lines;
+  };
+  reader.readAsText(file);
+}
+
+function importCSV() {
+  if (csvData.length < 2) { showToast('❌ No CSV data loaded'); return; }
+  let count = 0;
+  for (let i = 1; i < csvData.length; i++) {
+    const cols = csvData[i].split(',').map(c => c.trim().replace(/"/g,''));
+    if (cols.length < 5) continue;
+    const [name, index, programme, subject, score, total, grade, date, timeUsed] = cols;
+    const subj = (subject || 'EX').split(' ')[0].substring(0,3).toUpperCase();
+    const rand = Math.random().toString(36).substring(2,6).toUpperCase();
+    const code = `AC-${subj}-${index}-${rand}`;
+    const key = `${index}_${code}`;
+    RESULTS[key] = { name, index, programme, subject, score: parseFloat(score)||0, total: parseFloat(total)||50, grade: grade||'C', date: date||'', timeUsed: timeUsed||'—', code };
+    count++;
+  }
+  save();
+  showToast(`✅ Imported ${count} results!`);
+  updateStats();
+}
+
+// EXPORT
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(RESULTS, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'results.json';
+  a.click();
+  showToast('📥 results.json downloaded!');
+}
+
+function exportCSV() {
+  const rows = [['name','index','programme','subject','score','total','grade','date','timeUsed','code']];
+  Object.values(RESULTS).forEach(r => {
+    rows.push([r.name,r.index,r.programme,r.subject,r.score,r.total,r.grade,r.date,r.timeUsed,r.code]);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'results_export.csv';
+  a.click();
+}
+
+function copyShareMessage() {
+  const msg = document.getElementById('shareMessage').innerText;
+  navigator.clipboard.writeText(msg).then(() => showToast('📋 Message copied!'));
+}
+
+// SETTINGS
+function saveSettings() {
+  settings.school = document.getElementById('s-school').value;
+  const newPw = document.getElementById('s-password').value;
+  if (newPw) settings.password = newPw;
+  localStorage.setItem('ac_settings', JSON.stringify(settings));
+  showToast('✅ Settings saved!');
+}
+
+function clearAll() {
+  if (confirm('Delete ALL results? This cannot be undone.')) {
+    RESULTS = {};
+    save();
+    renderList();
+    updateStats();
+    showToast('🗑️ All results cleared');
+  }
+}
+
+load();
+</script>
+</body>
+</html>
